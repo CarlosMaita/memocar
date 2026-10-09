@@ -1,146 +1,178 @@
 <x-app-layout>
     <x-slot name="title">Dashboard</x-slot>
-    <x-slot name="header">
-        <div class="flex flex-wrap items-center justify-between gap-3">
-            <div>
-                <h2 class="font-semibold text-xl text-gray-800">{{ $car->name }}</h2>
-                <p class="text-sm text-gray-500">{{ $car->description() }}{{ $car->plate ? ' · '.$car->plate : '' }}</p>
-            </div>
-            <a href="{{ route('records.create') }}"><x-primary-button type="button">+ Nuevo registro</x-primary-button></a>
-        </div>
-    </x-slot>
 
-    {{-- KPIs --}}
-    <div class="grid gap-4 grid-cols-2 lg:grid-cols-4">
-        <div class="bg-white rounded-lg shadow-sm p-4" x-data="{ editing: false }">
-            <div class="text-xs uppercase tracking-wide text-gray-500">Kilometraje actual</div>
-            <div x-show="!editing" class="mt-1 flex items-baseline gap-2">
-                <span class="text-2xl font-semibold">{{ km($car->current_km) }}</span>
-                <button type="button" @click="editing = true" class="text-xs text-indigo-600 hover:underline">actualizar</button>
-            </div>
-            <form x-show="editing" x-cloak method="POST" action="{{ route('cars.km') }}" class="mt-1 flex gap-2">
-                @csrf @method('PATCH')
-                <input type="number" name="current_km" min="0" value="{{ $car->current_km }}" class="w-full rounded-md border-gray-300 text-sm">
-                <button class="rounded-md bg-indigo-600 px-3 text-sm text-white">OK</button>
-            </form>
-            <x-input-error :messages="$errors->get('current_km')" class="mt-1" />
-        </div>
-        <div class="bg-white rounded-lg shadow-sm p-4">
-            <div class="text-xs uppercase tracking-wide text-gray-500">Gastado en {{ now()->year }}</div>
-            <div class="mt-1 text-2xl font-semibold">{{ money($yearCost) }}</div>
-        </div>
-        <div class="bg-white rounded-lg shadow-sm p-4">
-            <div class="text-xs uppercase tracking-wide text-gray-500">Gasto total</div>
-            <div class="mt-1 text-2xl font-semibold">{{ money($totalCost) }}</div>
-            <div class="text-xs text-gray-500">{{ $recordsCount }} {{ $recordsCount === 1 ? 'registro' : 'registros' }}</div>
-        </div>
-        <div class="bg-white rounded-lg shadow-sm p-4">
-            <div class="text-xs uppercase tracking-wide text-gray-500">Último servicio</div>
-            @if ($lastRecord)
-                <div class="mt-1 font-semibold leading-tight">{{ $lastRecord->type->name }}</div>
-                <div class="text-xs text-gray-500">{{ $lastRecord->date->format('d/m/Y') }} · {{ $lastRecord->date->diffForHumans() }}</div>
-            @else
-                <div class="mt-1 text-gray-400">Sin registros</div>
-            @endif
-        </div>
-    </div>
-
-    {{-- Próximos mantenimientos --}}
     @php($counts = $items->countBy('status'))
-    <div class="mt-6 bg-white rounded-lg shadow-sm">
-        <div class="px-4 py-3 border-b border-gray-100 flex flex-wrap items-center justify-between gap-2">
-            <h3 class="font-semibold">Próximos mantenimientos</h3>
-            <div class="flex gap-2 text-xs">
-                <span class="rounded-full bg-red-100 text-red-700 px-2 py-0.5">{{ $counts['overdue'] ?? 0 }} vencidos</span>
-                <span class="rounded-full bg-amber-100 text-amber-700 px-2 py-0.5">{{ $counts['soon'] ?? 0 }} próximos</span>
-                <span class="rounded-full bg-green-100 text-green-700 px-2 py-0.5">{{ $counts['ok'] ?? 0 }} al día</span>
-            </div>
-        </div>
 
-        @if ($items->isEmpty())
-            <div class="px-4 py-10 text-center text-gray-500">
-                Las alertas aparecen a partir del primer mantenimiento registrado de cada tipo.
-                <div class="mt-3"><a href="{{ route('records.create') }}" class="text-indigo-600 hover:underline">Registra el primero</a></div>
+    <div class="flex flex-col gap-6">
+        {{-- Encabezado del carro --}}
+        <section class="flex flex-wrap items-end justify-between gap-6">
+            <div class="flex flex-col gap-1.5 min-w-0">
+                <span class="eyebrow text-accent-fg">{{ $car->description() ?: 'Mi carro' }}{{ $car->plate ? ' · '.$car->plate : '' }}</span>
+                <h1 class="m-0 font-display font-extrabold text-4xl sm:text-[46px] leading-[1.05] tracking-tight text-white break-words">{{ $car->name }}</h1>
             </div>
-        @else
-            <div class="overflow-x-auto">
-                <table class="min-w-full text-sm">
-                    <thead class="bg-gray-50 text-gray-500 text-left">
-                        <tr>
-                            <th class="px-4 py-2">Estado</th>
-                            <th class="px-4 py-2">Mantenimiento</th>
-                            <th class="px-4 py-2">Último</th>
-                            <th class="px-4 py-2">Próximo</th>
-                            <th class="px-4 py-2">Falta</th>
-                            <th class="px-4 py-2"></th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-100">
-                        @foreach ($items as $item)
-                            <tr>
-                                <td class="px-4 py-3">
-                                    <span @class([
-                                        'rounded-full px-2 py-0.5 text-xs font-medium whitespace-nowrap',
-                                        'bg-red-100 text-red-700' => $item->status === 'overdue',
-                                        'bg-amber-100 text-amber-700' => $item->status === 'soon',
-                                        'bg-green-100 text-green-700' => $item->status === 'ok',
-                                    ])>{{ $item->statusLabel() }}</span>
-                                </td>
-                                <td class="px-4 py-3">
-                                    <div class="font-medium">{{ $item->type->name }}</div>
-                                    <div class="text-xs text-gray-500">Cada {{ \App\Models\MaintenanceType::formatInterval($item->type->set_km, $item->type->set_months) }}</div>
-                                </td>
-                                <td class="px-4 py-3 whitespace-nowrap">
-                                    {{ $item->lastRecord->date->format('d/m/Y') }}
-                                    <div class="text-xs text-gray-500">{{ km($item->lastRecord->km) }}</div>
-                                </td>
-                                <td class="px-4 py-3 whitespace-nowrap">
-                                    {{ $item->nextDate?->format('d/m/Y') ?? '—' }}
-                                    <div class="text-xs text-gray-500">{{ km($item->nextKm) }}</div>
-                                </td>
-                                <td class="px-4 py-3 whitespace-nowrap">
-                                    @if ($item->daysLeft !== null)
-                                        <div @class(['text-red-600' => $item->daysLeft < 0])>
-                                            {{ $item->daysLeft < 0 ? 'Hace '.abs($item->daysLeft).' días' : $item->daysLeft.' días' }}
-                                        </div>
-                                    @endif
-                                    @if ($item->kmLeft !== null)
-                                        <div @class(['text-xs', 'text-red-600' => $item->kmLeft < 0, 'text-gray-500' => $item->kmLeft >= 0])>
-                                            {{ $item->kmLeft < 0 ? 'Pasado por '.km(abs($item->kmLeft)) : km($item->kmLeft) }}
-                                        </div>
-                                    @endif
-                                    @if ($item->daysLeft === null && $item->kmLeft === null)
-                                        <span class="text-xs text-gray-400">Registra el km para calcular</span>
-                                    @endif
-                                </td>
-                                <td class="px-4 py-3 text-right">
-                                    <a href="{{ route('records.create', ['type' => $item->type->id]) }}" class="text-indigo-600 hover:underline whitespace-nowrap">Registrar</a>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+
+            <div class="flex flex-wrap items-end gap-4">
+                <div class="flex flex-col gap-1.5" x-data="{ editing: {{ $errors->has('current_km') ? 'true' : 'false' }} }">
+                    <span class="eyebrow text-xs text-muted">Odómetro</span>
+                    <div x-show="! editing" class="flex items-center gap-2.5">
+                        <div role="img" aria-label="{{ number_format($car->current_km, 0, ',', '.') }} kilómetros" class="flex gap-[3px] p-[5px] rounded-lg bg-black border border-line-2">
+                            @foreach (str_split(str_pad((string) $car->current_km, 6, '0', STR_PAD_LEFT)) as $digit)
+                                <span class="w-[26px] h-9 rounded bg-surface-2 text-accent-fg flex items-center justify-center font-mono font-semibold text-xl">{{ $digit }}</span>
+                            @endforeach
+                            <span class="ps-1.5 pe-2 flex items-center text-muted font-mono text-[13px]">km</span>
+                        </div>
+                        <button type="button" @click="editing = true; $nextTick(() => $refs.km.focus())" class="btn-secondary min-h-11">Actualizar</button>
+                    </div>
+                    <form x-show="editing" x-cloak method="POST" action="{{ route('cars.km') }}" class="flex gap-2">
+                        @csrf @method('PATCH')
+                        <label for="current_km" class="sr-only">Kilometraje actual</label>
+                        <input id="current_km" x-ref="km" type="number" name="current_km" min="0" value="{{ old('current_km', $car->current_km) }}" class="w-40 font-mono">
+                        <button class="btn-primary">Guardar</button>
+                        <button type="button" @click="editing = false" class="btn-secondary min-h-11">Cancelar</button>
+                    </form>
+                    <x-input-error :messages="$errors->get('current_km')" />
+                </div>
+                <a href="{{ route('records.create') }}" class="btn-primary min-h-[46px]">
+                    <svg aria-hidden="true" class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+                    Nuevo registro
+                </a>
             </div>
-        @endif
+        </section>
+
+        {{-- Resumen de estado --}}
+        <section aria-label="Estado de mantenimientos" class="grid grid-cols-3 gap-2 sm:gap-3">
+            <div class="p-3 sm:px-5 sm:py-4 rounded-xl bg-over-bg border border-over-line flex flex-col sm:flex-row items-center gap-1 sm:gap-3.5 text-center sm:text-start">
+                <span class="font-display font-extrabold text-3xl sm:text-[38px] leading-none text-over">{{ $counts['overdue'] ?? 0 }}</span>
+                <span class="text-over-soft font-semibold leading-tight">vencidos<span class="hidden sm:block font-normal text-[13px] text-[#E8B3AC]">atiéndelos pronto</span></span>
+            </div>
+            <div class="p-3 sm:px-5 sm:py-4 rounded-xl bg-soon-bg border border-soon-line flex flex-col sm:flex-row items-center gap-1 sm:gap-3.5 text-center sm:text-start">
+                <span class="font-display font-extrabold text-3xl sm:text-[38px] leading-none text-soon">{{ $counts['soon'] ?? 0 }}</span>
+                <span class="text-soon-soft font-semibold leading-tight">próximos<span class="hidden sm:block font-normal text-[13px] text-[#E2C98F]">en 30 días o 1.000 km</span></span>
+            </div>
+            <div class="p-3 sm:px-5 sm:py-4 rounded-xl bg-ok-bg border border-ok-line flex flex-col sm:flex-row items-center gap-1 sm:gap-3.5 text-center sm:text-start">
+                <span class="font-display font-extrabold text-3xl sm:text-[38px] leading-none text-ok">{{ $counts['ok'] ?? 0 }}</span>
+                <span class="text-ok-soft font-semibold leading-tight">al día<span class="hidden sm:block font-normal text-[13px] text-[#B7D58A]">sin pendientes</span></span>
+            </div>
+        </section>
+
+        <div class="flex flex-wrap gap-6 items-start">
+            {{-- Próximos mantenimientos --}}
+            <section class="card overflow-hidden flex-[999_1_560px] min-w-0">
+                <div class="px-5 sm:px-[22px] py-[18px] flex flex-wrap items-center justify-between gap-3 border-b border-line">
+                    <h2 class="m-0 font-display font-bold text-xl text-white">Próximos mantenimientos</h2>
+                    <span class="text-[13px] text-muted">Lo que ocurra primero: km o fecha</span>
+                </div>
+
+                @forelse ($items as $item)
+                    <article class="px-5 sm:px-[22px] py-[18px] border-b border-line-soft last:border-b-0 grid grid-cols-[minmax(0,1fr)_auto] gap-x-5 gap-y-2.5 items-center">
+                        <div class="flex flex-col gap-2 min-w-0">
+                            <div class="flex flex-wrap items-center gap-2.5">
+                                <span @class([
+                                    'pill',
+                                    'bg-over-bg text-over' => $item->status === 'overdue',
+                                    'bg-soon-bg text-soon' => $item->status === 'soon',
+                                    'bg-ok-bg text-ok' => $item->status === 'ok',
+                                ])>{{ $item->statusLabel() }}</span>
+                                <h3 class="m-0 text-base font-semibold text-white">{{ $item->type->name }}</h3>
+                                <span class="text-[13px] text-muted">Cada {{ \App\Models\MaintenanceType::formatInterval($item->type->set_km, $item->type->set_months) }}</span>
+                            </div>
+                            <div role="img" aria-label="{{ $item->progress }}% del intervalo consumido" class="h-1.5 rounded-full bg-line overflow-hidden">
+                                <div @class([
+                                    'h-full rounded-full',
+                                    'bg-over-bar' => $item->status === 'overdue',
+                                    'bg-soon-bar' => $item->status === 'soon',
+                                    'bg-ok-bar' => $item->status === 'ok',
+                                ]) style="width: {{ $item->progress }}%"></div>
+                            </div>
+                            <div class="flex flex-wrap gap-x-5 gap-y-1 text-[13px] text-muted">
+                                <span>Último: <span class="text-fg font-medium">{{ $item->lastRecord->date->format('d/m/Y') }}{{ $item->lastRecord->km !== null ? ' · '.km($item->lastRecord->km) : '' }}</span></span>
+                                @if ($item->nextDate || $item->nextKm !== null)
+                                    <span>Próximo: <span class="text-fg font-medium">{{ collect([$item->nextDate?->format('d/m/Y'), $item->nextKm !== null ? km($item->nextKm) : null])->filter()->join(' · ') }}</span></span>
+                                @endif
+                                <span @class([
+                                    'font-semibold',
+                                    'text-over' => $item->status === 'overdue',
+                                    'text-soon' => $item->status === 'soon',
+                                    'text-muted' => $item->status === 'ok',
+                                ])>{{ $item->remainingLabel() }}</span>
+                            </div>
+                        </div>
+                        <a href="{{ route('records.create', ['type' => $item->type->id]) }}" class="btn-secondary">Registrar</a>
+                    </article>
+                @empty
+                    <div class="px-6 py-12 text-center text-muted">
+                        Las alertas aparecen a partir del primer mantenimiento registrado de cada tipo.
+                        <div class="mt-4"><a href="{{ route('records.create') }}" class="btn-primary">Registrar el primero</a></div>
+                    </div>
+                @endforelse
+            </section>
+
+            {{-- Columna lateral --}}
+            <aside class="flex-[1_1_300px] min-w-0 flex flex-col gap-4">
+                <section class="card px-[22px] py-5 flex flex-col gap-3.5">
+                    <h2 class="m-0 font-display font-bold text-lg text-white">Gastos</h2>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="flex flex-col gap-0.5">
+                            <span class="text-[13px] text-muted">En {{ now()->year }}</span>
+                            <span class="font-mono font-semibold text-[22px] text-accent-fg">{{ money($yearCost) }}</span>
+                        </div>
+                        <div class="flex flex-col gap-0.5">
+                            <span class="text-[13px] text-muted">Total · {{ $recordsCount }} {{ $recordsCount === 1 ? 'registro' : 'registros' }}</span>
+                            <span class="font-mono font-semibold text-[22px] text-white">{{ money($totalCost) }}</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="card px-[22px] py-5 flex flex-col gap-1">
+                    <div class="flex justify-between items-baseline mb-2">
+                        <h2 class="m-0 font-display font-bold text-lg text-white">Historial reciente</h2>
+                        @if ($recent->isNotEmpty())
+                            <a href="{{ route('records.index') }}" class="text-sm font-semibold no-underline">Ver todo</a>
+                        @endif
+                    </div>
+                    @forelse ($recent as $record)
+                        <a href="{{ route('records.edit', $record) }}" class="grid grid-cols-[52px_minmax(0,1fr)_auto] gap-3 items-center py-2.5 border-t border-line-soft text-fg no-underline hover:text-white">
+                            <span class="flex flex-col items-center py-1 rounded-md bg-surface-2 leading-tight">
+                                <span class="font-bold text-base text-white">{{ $record->date->format('d') }}</span>
+                                <span class="text-[11px] uppercase text-muted">{{ $record->date->translatedFormat('M') }}</span>
+                            </span>
+                            <span class="min-w-0">
+                                <span class="block font-semibold text-sm truncate">{{ $record->type->name }}</span>
+                                <span class="block text-[13px] text-muted">{{ $record->km !== null ? km($record->km) : $record->date->year }}</span>
+                            </span>
+                            <span class="font-mono font-medium text-sm">{{ money($record->cost) }}</span>
+                        </a>
+                    @empty
+                        <p class="m-0 text-sm text-muted">Aún no hay registros para este carro.</p>
+                    @endforelse
+                </section>
+
+                @if ($neverDone->isNotEmpty())
+                    <section class="card px-[22px] py-5 flex flex-col gap-3" x-data="{ all: false }">
+                        <div>
+                            <h2 class="m-0 font-display font-bold text-lg text-white">Sin registrar aún</h2>
+                            <p class="mt-1 mb-0 text-[13px] text-muted">Registra el último que hiciste y empezarás a recibir alertas.</p>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            @foreach ($neverDone as $type)
+                                <a href="{{ route('records.create', ['type' => $type->id]) }}"
+                                   @if ($loop->index >= 6) x-show="all" x-cloak @endif
+                                   class="px-3 py-1.5 rounded-full border border-line-2 text-fg no-underline text-[13px] font-medium hover:border-accent hover:text-white">{{ $type->name }}</a>
+                            @endforeach
+                            @if ($neverDone->count() > 6)
+                                <button type="button" x-show="! all" @click="all = true" class="px-3 py-1.5 rounded-full bg-surface-2 text-accent-fg text-[13px] font-semibold">+{{ $neverDone->count() - 6 }} más</button>
+                            @endif
+                        </div>
+                    </section>
+                @endif
+            </aside>
+        </div>
     </div>
 
-    @if ($neverDone->isNotEmpty())
-        <div class="mt-6 bg-white rounded-lg shadow-sm" x-data="{ open: false }">
-            <button type="button" @click="open = !open" class="w-full px-4 py-3 flex items-center justify-between text-start">
-                <span class="font-semibold">Sin registrar aún <span class="text-gray-400 font-normal">({{ $neverDone->count() }})</span></span>
-                <span class="text-sm text-gray-500" x-text="open ? 'Ocultar' : 'Ver'"></span>
-            </button>
-            <div x-show="open" x-cloak class="border-t border-gray-100 px-4 py-3">
-                <p class="text-sm text-gray-500 mb-3">Si ya hiciste alguno de estos mantenimientos, regístralo para empezar a recibir alertas.</p>
-                <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 text-sm">
-                    @foreach ($neverDone as $type)
-                        <a href="{{ route('records.create', ['type' => $type->id]) }}" class="rounded-md border border-gray-200 px-3 py-2 hover:border-indigo-400">
-                            {{ $type->name }}
-                            <span class="block text-xs text-gray-500">Cada {{ \App\Models\MaintenanceType::formatInterval($type->set_km, $type->set_months) }}</span>
-                        </a>
-                    @endforeach
-                </div>
-            </div>
-        </div>
-    @endif
+    {{-- Botón fijo en móvil --}}
+    <a href="{{ route('records.create') }}" class="sm:hidden fixed left-4 right-4 bottom-5 z-40 btn-primary min-h-[54px] text-base shadow-[0_8px_28px_rgba(118,185,0,0.25)]">
+        <svg aria-hidden="true" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        Nuevo registro
+    </a>
+    <div class="sm:hidden h-16" aria-hidden="true"></div>
 </x-app-layout>

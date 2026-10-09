@@ -50,7 +50,17 @@ class MaintenanceSchedule
                 $daysLeft = $nextDate ? (int) $today->diffInDays($nextDate, false) : null;
                 $kmLeft = $nextKm !== null ? $nextKm - $car->current_km : null;
 
-                return new ScheduleItem($type, $last, $nextDate, $nextKm, $daysLeft, $kmLeft, $this->status($daysLeft, $kmLeft));
+                $lastDate = CarbonImmutable::parse($last->date);
+                $fractions = [];
+                if ($nextDate) {
+                    $fractions[] = $lastDate->diffInDays($today, false) / max(1, $lastDate->diffInDays($nextDate));
+                }
+                if ($nextKm !== null) {
+                    $fractions[] = ($car->current_km - $last->km) / $type->set_km;
+                }
+                $progress = (int) round(min(1, max(0, ...($fractions ?: [0]))) * 100);
+
+                return new ScheduleItem($type, $last, $nextDate, $nextKm, $daysLeft, $kmLeft, $this->status($daysLeft, $kmLeft), $progress);
             })
             ->sortBy([
                 fn (ScheduleItem $a, ScheduleItem $b) => $this->rank($a->status) <=> $this->rank($b->status),

@@ -1,105 +1,105 @@
 @php($navCars = Auth::user()->cars()->orderBy('name')->get(['id', 'name', 'brand', 'model', 'year']))
-<nav x-data="{ open: false }" class="bg-white border-b border-gray-200">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
-            <div class="flex">
-                <a href="{{ route('dashboard') }}" class="shrink-0 flex items-center gap-2">
-                    <x-application-logo class="h-8 w-8 text-indigo-600" />
-                    <span class="font-semibold text-lg tracking-tight">MemoCar</span>
-                </a>
+@php($tabs = [
+    ['Dashboard', 'dashboard', 'dashboard'],
+    ['Registros', 'records.index', 'records.*'],
+    ['Catálogo', 'maintenance-types.index', 'maintenance-types.*'],
+    ['Mis carros', 'cars.index', ['cars.index', 'cars.create', 'cars.edit']],
+])
+<nav x-data="{ open: false }" class="bg-bar border-b border-[#222622]">
+    <div class="max-w-[1200px] mx-auto px-4 sm:px-6 min-h-16 flex items-center gap-x-8 gap-y-3">
+        <a href="{{ route('dashboard') }}" class="no-underline shrink-0"><x-brand /></a>
 
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">Dashboard</x-nav-link>
-                    <x-nav-link :href="route('records.index')" :active="request()->routeIs('records.*')">Registros</x-nav-link>
-                    <x-nav-link :href="route('maintenance-types.index')" :active="request()->routeIs('maintenance-types.*')">Catálogo</x-nav-link>
-                    <x-nav-link :href="route('cars.index')" :active="request()->routeIs('cars.index', 'cars.create', 'cars.edit')">Mis carros</x-nav-link>
-                </div>
-            </div>
+        <div class="hidden md:flex gap-1 flex-1">
+            @foreach ($tabs as [$label, $route, $pattern])
+                @php($active = request()->routeIs(...(array) $pattern))
+                <a href="{{ route($route) }}" @if ($active) aria-current="page" @endif
+                   @class([
+                       'px-3.5 py-2 rounded-md text-sm no-underline',
+                       'bg-surface-2 text-white font-semibold shadow-[inset_0_-2px_0_var(--color-accent)]' => $active,
+                       'text-muted font-medium hover:text-white' => ! $active,
+                   ])>{{ $label }}</a>
+            @endforeach
+        </div>
 
-            <div class="hidden sm:flex sm:items-center sm:gap-3 sm:ms-6">
-                {{-- Selector de carro --}}
-                @if ($navCars->isNotEmpty())
-                    <x-dropdown align="right" width="w-64">
-                        <x-slot name="trigger">
-                            <button class="inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium bg-indigo-50 text-indigo-700 hover:bg-indigo-100">
-                                <x-application-logo class="h-4 w-4" />
-                                <span>{{ isset($currentCar) ? $currentCar->name : 'Seleccionar carro' }}</span>
-                                <svg class="fill-current h-4 w-4" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
-                            </button>
-                        </x-slot>
-                        <x-slot name="content">
-                            <div class="px-4 py-2 text-xs text-gray-400 uppercase tracking-wide">Cambiar de carro</div>
-                            @foreach ($navCars as $navCar)
-                                <form method="POST" action="{{ route('cars.choose', $navCar) }}">
-                                    @csrf
-                                    <button class="w-full text-start px-4 py-2 text-sm hover:bg-gray-100 {{ isset($currentCar) && $currentCar->id === $navCar->id ? 'font-semibold text-indigo-700' : 'text-gray-700' }}">
-                                        {{ $navCar->name }}
-                                        <span class="block text-xs text-gray-400">{{ $navCar->description() }}</span>
-                                    </button>
-                                </form>
-                            @endforeach
-                            <div class="border-t border-gray-100"></div>
-                            <x-dropdown-link :href="route('cars.create')">+ Agregar carro</x-dropdown-link>
-                        </x-slot>
-                    </x-dropdown>
-                @endif
-
-                <x-dropdown align="right" width="48">
+        <div class="hidden md:flex items-center gap-3 ms-auto">
+            @if ($navCars->isNotEmpty())
+                <x-dropdown align="right" width="w-64" contentClasses="py-1 bg-surface border border-line">
                     <x-slot name="trigger">
-                        <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
-                            <div>{{ Auth::user()->name }}</div>
-                            <div class="ms-1">
-                                <svg class="fill-current h-4 w-4" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
-                            </div>
+                        <button type="button" class="flex items-center gap-2.5 py-1.5 ps-1.5 pe-3 rounded-full bg-surface border border-line-2 text-white">
+                            <span class="w-[30px] h-[30px] rounded-full bg-accent text-on-accent flex items-center justify-center font-extrabold text-[13px]">{{ mb_strtoupper(mb_substr($currentCar->name ?? '?', 0, 1)) }}</span>
+                            <span class="text-sm font-semibold">{{ $currentCar->name ?? 'Elegir carro' }}</span>
+                            <svg aria-hidden="true" class="w-4 h-4 text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10l5 5 5-5"/></svg>
                         </button>
                     </x-slot>
-
                     <x-slot name="content">
-                        <x-dropdown-link :href="route('profile.edit')">Perfil</x-dropdown-link>
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <x-dropdown-link :href="route('logout')" onclick="event.preventDefault(); this.closest('form').submit();">Cerrar sesión</x-dropdown-link>
-                        </form>
+                        <div class="px-4 py-2 eyebrow text-[11px] text-muted">Cambiar de carro</div>
+                        @foreach ($navCars as $navCar)
+                            <form method="POST" action="{{ route('cars.choose', $navCar) }}">
+                                @csrf
+                                <button @class([
+                                    'w-full text-start px-4 py-2 text-sm hover:bg-surface-2',
+                                    'font-semibold text-accent-fg' => isset($currentCar) && $currentCar->id === $navCar->id,
+                                    'text-fg' => ! (isset($currentCar) && $currentCar->id === $navCar->id),
+                                ])>
+                                    {{ $navCar->name }}
+                                    <span class="block text-xs text-muted font-normal">{{ $navCar->description() }}</span>
+                                </button>
+                            </form>
+                        @endforeach
+                        <div class="border-t border-line my-1"></div>
+                        <x-dropdown-link :href="route('cars.create')">+ Agregar carro</x-dropdown-link>
                     </x-slot>
                 </x-dropdown>
-            </div>
+            @endif
 
-            <div class="-me-2 flex items-center sm:hidden">
-                <button @click="open = ! open" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out">
-                    <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                        <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                        <path :class="{'hidden': ! open, 'inline-flex': open }" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
+            <x-dropdown align="right" width="48" contentClasses="py-1 bg-surface border border-line">
+                <x-slot name="trigger">
+                    <button type="button" aria-label="Cuenta de {{ Auth::user()->name }}" class="w-10 h-10 rounded-full border border-line-2 text-white font-semibold text-sm">
+                        {{ mb_strtoupper(mb_substr(Auth::user()->name, 0, 1)) }}
+                    </button>
+                </x-slot>
+                <x-slot name="content">
+                    <div class="px-4 py-2 border-b border-line">
+                        <div class="text-sm font-semibold text-white">{{ Auth::user()->name }}</div>
+                        <div class="text-xs text-muted truncate">{{ Auth::user()->email }}</div>
+                    </div>
+                    <x-dropdown-link :href="route('profile.edit')">Perfil</x-dropdown-link>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <x-dropdown-link :href="route('logout')" onclick="event.preventDefault(); this.closest('form').submit();">Cerrar sesión</x-dropdown-link>
+                    </form>
+                </x-slot>
+            </x-dropdown>
         </div>
+
+        <button type="button" @click="open = ! open" :aria-expanded="open" aria-label="Abrir menú" class="md:hidden ms-auto w-11 h-11 rounded-lg border border-line-2 flex items-center justify-center text-white">
+            <svg aria-hidden="true" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <path x-show="! open" d="M4 7h16M4 12h16M4 17h16" />
+                <path x-show="open" x-cloak d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
     </div>
 
     {{-- Menú móvil --}}
-    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
-        <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">Dashboard</x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('records.index')" :active="request()->routeIs('records.*')">Registros</x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('maintenance-types.index')" :active="request()->routeIs('maintenance-types.*')">Catálogo</x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('cars.index')" :active="request()->routeIs('cars.index', 'cars.create', 'cars.edit')">Mis carros</x-responsive-nav-link>
+    <div x-show="open" x-cloak class="md:hidden border-t border-[#222622] px-4 pb-4">
+        <div class="pt-3 flex flex-col gap-1">
+            @foreach ($tabs as [$label, $route, $pattern])
+                <x-responsive-nav-link :href="route($route)" :active="request()->routeIs(...(array) $pattern)">{{ $label }}</x-responsive-nav-link>
+            @endforeach
             <x-responsive-nav-link :href="route('cars.select')" :active="request()->routeIs('cars.select')">
-                Cambiar de carro{{ isset($currentCar) ? ' (actual: '.$currentCar->name.')' : '' }}
+                Cambiar de carro{{ isset($currentCar) ? ' · '.$currentCar->name : '' }}
             </x-responsive-nav-link>
         </div>
-
-        <div class="pt-4 pb-1 border-t border-gray-200">
-            <div class="px-4">
-                <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
-                <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
+        <div class="mt-3 pt-3 border-t border-line flex flex-col gap-1">
+            <div class="px-3 pb-1">
+                <div class="font-semibold text-white">{{ Auth::user()->name }}</div>
+                <div class="text-sm text-muted">{{ Auth::user()->email }}</div>
             </div>
-
-            <div class="mt-3 space-y-1">
-                <x-responsive-nav-link :href="route('profile.edit')">Perfil</x-responsive-nav-link>
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <x-responsive-nav-link :href="route('logout')" onclick="event.preventDefault(); this.closest('form').submit();">Cerrar sesión</x-responsive-nav-link>
-                </form>
-            </div>
+            <x-responsive-nav-link :href="route('profile.edit')">Perfil</x-responsive-nav-link>
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <x-responsive-nav-link :href="route('logout')" onclick="event.preventDefault(); this.closest('form').submit();">Cerrar sesión</x-responsive-nav-link>
+            </form>
         </div>
     </div>
 </nav>

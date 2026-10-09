@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Middleware\EnsureCarSelected;
 use App\Models\Car;
+use App\Services\MaintenanceSchedule;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -19,7 +20,7 @@ class CarController extends Controller
     }
 
     /** Pantalla de entrada: elegir el carro a revisar. */
-    public function select(Request $request): View|RedirectResponse
+    public function select(Request $request, MaintenanceSchedule $schedule): View|RedirectResponse
     {
         $cars = $request->user()->cars()->withCount('records')->orderBy('name')->get();
 
@@ -27,7 +28,13 @@ class CarController extends Controller
             return redirect()->route('cars.create');
         }
 
-        return view('cars.select', ['cars' => $cars]);
+        return view('cars.select', [
+            'cars' => $cars,
+            'overdue' => $cars->mapWithKeys(fn (Car $car) => [
+                $car->id => $schedule->forCar($car)->where('status', MaintenanceSchedule::OVERDUE)->count(),
+            ]),
+            'selectedId' => $request->session()->get(EnsureCarSelected::SESSION_KEY),
+        ]);
     }
 
     public function choose(Request $request, Car $car): RedirectResponse

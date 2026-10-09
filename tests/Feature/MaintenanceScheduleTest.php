@@ -92,3 +92,14 @@ test('el dashboard muestra el estado', function () {
     $this->actingAs($this->car->user)->get('/dashboard')
         ->assertOk()->assertSee('Cambio de aceite')->assertSee('Vencido');
 });
+
+test('el texto de lo que falta combina días y km', function () {
+    $oil = MaintenanceType::factory()->for($this->car->user)->create(['set_km' => 5000, 'set_months' => 6]);
+    record($this->car, $oil, '2026-07-09', 80000);
+    $this->car->update(['current_km' => 82000]);
+
+    $item = $this->schedule->forCar($this->car, $this->today)->sole();
+
+    expect($item->remainingLabel())->toBe('Faltan 92 días · 3.000 km')
+        ->and($item->progress)->toBe(50); // 92 de 184 días (50%) > 2.000 de 5.000 km (40%)
+});

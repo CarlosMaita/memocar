@@ -6,6 +6,7 @@ Historial de reparaciones y mantenimiento de carros con alertas del próximo ser
 
 - Laravel 13, PHP 8.5, Breeze (Blade), Pest. Lint con Pint (`./vendor/bin/pint`).
 - **Sin Node**: el CSS se compila con el binario standalone de Tailwind v4 (`scripts/build-css.sh`: `resources/css/app.css` → `public/css/app.css`, que se commitea). Alpine se sirve desde `public/js/alpine.min.js`. Nada de CDN en runtime (un bloqueador dejó la app sin estilos). **Después de cambiar clases en vistas, correr `scripts/build-css.sh`.** No usar `@vite`.
+- Diseño: tema oscuro con acento verde `#76B900` (texto negro encima). Tokens en `@theme` de `resources/css/app.css` (`bg`, `surface`, `line`, `fg`, `muted`, `accent`, estados `over`/`soon`/`ok` con `-bg`/`-line`/`-bar`/`-soft`) y clases `card`, `btn-primary`, `btn-secondary`, `pill`, `eyebrow`. Tipografías: Archivo (`font-display`), Figtree, JetBrains Mono (`font-mono`, para km y montos). Referencia: canvas https://claude.ai/artifact/39eHLGTbBempLrYYrJGyk6.
 - Dev local: SQLite. Producción: MySQL/MariaDB `upsofte_memocar`. Sesión/caché en `database`, cola `sync`.
 - Idioma `es` (traducciones en `lang/`, generadas con laravel-lang), zona horaria `America/Caracas` (`APP_TIMEZONE`). Moneda única: USD (helpers `money()` y `km()` en `app/helpers.php`).
 - Tests: Hestia deshabilita `pcntl_*` en el CLI, por eso `php artisan test` falla. Usar `php -d disable_functions= vendor/bin/pest`.

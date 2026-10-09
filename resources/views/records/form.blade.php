@@ -1,17 +1,18 @@
 <x-app-layout>
     <x-slot name="title">{{ $record->exists ? 'Editar registro' : 'Nuevo registro' }}</x-slot>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800">{{ $record->exists ? 'Editar registro' : 'Nuevo registro' }} · {{ $currentCar->name }}</h2>
+        <span class="eyebrow text-accent-fg">{{ $currentCar->name }}</span>
+        <h1 class="mt-0.5 mb-0 font-display font-extrabold text-3xl sm:text-[42px] leading-tight tracking-tight text-white">{{ $record->exists ? 'Editar registro' : 'Nuevo registro' }}</h1>
     </x-slot>
 
     <div class="max-w-2xl">
-        <form method="POST" action="{{ $record->exists ? route('records.update', $record) : route('records.store') }}" class="bg-white shadow-sm rounded-lg p-6 space-y-4">
+        <form method="POST" action="{{ $record->exists ? route('records.update', $record) : route('records.store') }}" class="card p-6 space-y-5">
             @csrf
             @if ($record->exists) @method('PUT') @endif
 
             <div>
                 <x-input-label for="maintenance_type_id" value="Concepto (falla o mantenimiento) *" />
-                <select id="maintenance_type_id" name="maintenance_type_id" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                <select id="maintenance_type_id" name="maintenance_type_id" required class="mt-1 block w-full min-h-[46px]">
                     <option value="">Selecciona…</option>
                     @foreach ($typesByCategory as $category => $types)
                         <optgroup label="{{ $category }}">
@@ -21,7 +22,7 @@
                         </optgroup>
                     @endforeach
                 </select>
-                <p class="mt-1 text-xs text-gray-500">¿No está en la lista? <a href="{{ route('maintenance-types.create') }}" class="text-indigo-600 hover:underline">Agrégalo al catálogo</a>.</p>
+                <p class="mt-1.5 text-xs text-muted">¿No está en la lista? <a href="{{ route('maintenance-types.create') }}" class="font-semibold">Agrégalo al catálogo</a>.</p>
                 <x-input-error :messages="$errors->get('maintenance_type_id')" class="mt-1" />
             </div>
 
@@ -33,25 +34,25 @@
                 </div>
                 <div>
                     <x-input-label for="km" value="Kilometraje" />
-                    <x-text-input id="km" name="km" type="number" min="0" class="mt-1 block w-full" :value="old('km', $record->km)" />
+                    <x-text-input id="km" name="km" type="number" min="0" class="mt-1 block w-full font-mono" :value="old('km', $record->km)" />
                     <x-input-error :messages="$errors->get('km')" class="mt-1" />
                 </div>
                 <div>
                     <x-input-label for="cost" value="Costo (USD) *" />
-                    <x-text-input id="cost" name="cost" type="number" step="0.01" min="0" class="mt-1 block w-full" :value="old('cost', $record->cost)" required />
+                    <x-text-input id="cost" name="cost" type="number" step="0.01" min="0" class="mt-1 block w-full font-mono" :value="old('cost', $record->cost)" required />
                     <x-input-error :messages="$errors->get('cost')" class="mt-1" />
                 </div>
             </div>
 
             <div>
                 <x-input-label for="description" value="Descripción (opcional)" />
-                <textarea id="description" name="description" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" placeholder="Taller, repuestos usados, observaciones…">{{ old('description', $record->description) }}</textarea>
+                <textarea id="description" name="description" rows="3" class="mt-1 block w-full min-h-[46px]" placeholder="Taller, repuestos usados, observaciones…">{{ old('description', $record->description) }}</textarea>
                 <x-input-error :messages="$errors->get('description')" class="mt-1" />
             </div>
 
             <div class="flex items-center justify-between pt-2">
                 <x-primary-button>Guardar</x-primary-button>
-                <a href="{{ route('records.index') }}" class="text-sm text-gray-600 hover:underline">Cancelar</a>
+                <a href="{{ route('records.index') }}" class="text-sm text-muted hover:text-white">Cancelar</a>
             </div>
         </form>
 

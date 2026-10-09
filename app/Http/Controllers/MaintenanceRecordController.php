@@ -23,9 +23,14 @@ class MaintenanceRecordController extends Controller
             ->when($filters['type'] ?? null, fn ($q, $type) => $q->where('maintenance_type_id', $type))
             ->when($filters['year'] ?? null, fn ($q, $year) => $q->whereYear('date', $year));
 
+        $records = $query->clone()->orderByDesc('date')->orderByDesc('id')->paginate(30)->withQueryString();
+
         return view('records.index', [
-            'records' => $query->clone()->orderByDesc('date')->orderByDesc('id')->paginate(25)->withQueryString(),
+            'records' => $records,
+            'recordsByYear' => $records->getCollection()->groupBy(fn (MaintenanceRecord $r) => $r->date->year),
+            'yearTotals' => $query->clone()->get(['date', 'cost'])->groupBy(fn (MaintenanceRecord $r) => $r->date->year)->map->sum('cost'),
             'total' => (float) $query->clone()->sum('cost'),
+            'count' => $records->total(),
             'types' => $request->user()->maintenanceTypes()->whereIn('id', $car->records()->select('maintenance_type_id'))->orderBy('name')->get(),
             'years' => $car->records()->pluck('date')->map(fn ($date) => Carbon::parse($date)->year)->unique()->sortDesc()->values(),
             'filters' => $filters,

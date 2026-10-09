@@ -4,33 +4,27 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
+        <meta name="theme-color" content="#000000">
 
         <title>{{ isset($title) ? $title.' · ' : '' }}{{ config('app.name', 'MemoCar') }}</title>
 
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-
         @include('partials.assets')
     </head>
-    <body class="font-sans antialiased text-gray-900">
-        <div class="min-h-screen bg-gray-100">
+    <body class="font-sans antialiased bg-bg text-fg text-[15px] leading-normal">
+        <div class="min-h-screen">
             @include('layouts.navigation')
 
-            @isset($header)
-                <header class="bg-white shadow-sm">
-                    <div class="max-w-7xl mx-auto py-5 px-4 sm:px-6 lg:px-8">
-                        {{ $header }}
-                    </div>
-                </header>
-            @endisset
-
-            <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+            <main class="max-w-[1200px] mx-auto px-4 sm:px-6 pt-8 pb-16">
                 @if (session('status'))
-                    <div class="mb-4 rounded-md bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-800">{{ session('status') }}</div>
+                    <div class="mb-5 rounded-lg border border-ok-line bg-ok-bg px-4 py-3 text-sm text-ok-soft">{{ session('status') }}</div>
                 @endif
                 @if (session('error'))
-                    <div class="mb-4 rounded-md bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-800">{{ session('error') }}</div>
+                    <div class="mb-5 rounded-lg border border-over-line bg-over-bg px-4 py-3 text-sm text-over-soft">{{ session('error') }}</div>
                 @endif
+
+                @isset($header)
+                    <div class="mb-6">{{ $header }}</div>
+                @endisset
 
                 {{ $slot }}
             </main>

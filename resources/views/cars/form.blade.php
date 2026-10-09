@@ -1,17 +1,18 @@
 <x-app-layout>
     <x-slot name="title">{{ $car->exists ? 'Editar carro' : 'Nuevo carro' }}</x-slot>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800">{{ $car->exists ? 'Editar '.$car->name : 'Nuevo carro' }}</h2>
+        <span class="eyebrow text-accent-fg">{{ $car->exists ? 'Editar carro' : 'Garaje' }}</span>
+        <h1 class="mt-0.5 mb-0 font-display font-extrabold text-3xl sm:text-[42px] leading-tight tracking-tight text-white">{{ $car->exists ? $car->name : 'Nuevo carro' }}</h1>
     </x-slot>
 
     <div class="max-w-2xl">
         @if ($first)
-            <div class="mb-4 rounded-md bg-indigo-50 border border-indigo-200 px-4 py-3 text-sm text-indigo-800">
+            <div class="mb-4 rounded-lg bg-ok-bg border border-ok-line px-4 py-3 text-sm text-ok-soft">
                 ¡Bienvenido a MemoCar! Empieza registrando tu primer carro.
             </div>
         @endif
 
-        <form method="POST" action="{{ $car->exists ? route('cars.update', $car) : route('cars.store') }}" class="bg-white shadow-sm rounded-lg p-6 space-y-4">
+        <form method="POST" action="{{ $car->exists ? route('cars.update', $car) : route('cars.store') }}" class="card p-6 space-y-5">
             @csrf
             @if ($car->exists) @method('PUT') @endif
 
@@ -55,7 +56,7 @@
             <div class="flex items-center justify-between pt-2">
                 <x-primary-button>Guardar</x-primary-button>
                 @unless ($first)
-                    <a href="{{ route('cars.index') }}" class="text-sm text-gray-600 hover:underline">Cancelar</a>
+                    <a href="{{ route('cars.index') }}" class="text-sm text-muted hover:text-white">Cancelar</a>
                 @endunless
             </div>
         </form>

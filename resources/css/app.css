@@ -5,11 +5,82 @@
 
 @theme {
     --font-sans: Figtree, ui-sans-serif, system-ui, sans-serif;
+    --font-display: Archivo, Figtree, ui-sans-serif, sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+    /* Paleta oscura con acento verde */
+    --color-bg: #0B0D0B;
+    --color-bar: #000000;
+    --color-surface: #141714;
+    --color-surface-2: #1D211D;
+    --color-line: #262B26;
+    --color-line-2: #2B302B;
+    --color-line-soft: #1F231F;
+    --color-fg: #F1F4EE;
+    --color-fg-2: #D6DBD2;
+    --color-muted: #A1A89D;
+    --color-accent: #76B900;
+    --color-accent-hover: #8AD000;
+    --color-accent-fg: #9BDB3D;
+    --color-on-accent: #0B0D0B;
+
+    /* Estados */
+    --color-over: #FF7A6E;
+    --color-over-soft: #FFD3CD;
+    --color-over-bg: #2B1311;
+    --color-over-line: #4A1E1A;
+    --color-over-bar: #FF4D4D;
+    --color-soon: #FFC24D;
+    --color-soon-soft: #FFE6B0;
+    --color-soon-bg: #2B220D;
+    --color-soon-line: #4A3A14;
+    --color-soon-bar: #FFB020;
+    --color-ok: #9BDB3D;
+    --color-ok-soft: #D9F2B3;
+    --color-ok-bg: #18230B;
+    --color-ok-line: #2F4312;
+    --color-ok-bar: #76B900;
 }
 
 @layer base {
-    *, ::after, ::before, ::backdrop { border-color: var(--color-gray-200, currentColor); }
+    *, ::after, ::before, ::backdrop { border-color: var(--color-line); }
+    html { color-scheme: dark; }
+    body { background: var(--color-bg); color: var(--color-fg); }
+    a { color: #8CD11A; }
+    a:hover { color: #A6E84A; }
     button:not(:disabled), [role="button"]:not(:disabled) { cursor: pointer; }
-    input:not([type=checkbox]):not([type=radio]), select, textarea { border-width: 1px; padding: 0.5rem 0.75rem; }
+    input:not([type=checkbox]):not([type=radio]), select, textarea {
+        border-width: 1px;
+        border-color: var(--color-line-2);
+        background-color: var(--color-bg);
+        color: var(--color-fg);
+        padding: 0.5rem 0.75rem;
+        border-radius: 0.5rem;
+    }
+    input:focus, select:focus, textarea:focus {
+        outline: none;
+        border-color: var(--color-accent);
+        box-shadow: 0 0 0 3px rgb(118 185 0 / 0.2);
+    }
+    input[type=checkbox] { accent-color: var(--color-accent); width: 1.1rem; height: 1.1rem; }
     [x-cloak] { display: none !important; }
+}
+
+@layer components {
+    .card { background: var(--color-surface); border: 1px solid var(--color-line); border-radius: 0.875rem; }
+    .eyebrow { font-size: 0.8125rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; }
+    .btn-primary {
+        display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+        min-height: 2.75rem; padding: 0 1.25rem; border-radius: 0.5rem;
+        background: var(--color-accent); color: var(--color-on-accent) !important; font-weight: 700; text-decoration: none;
+    }
+    .btn-primary:hover { background: var(--color-accent-hover); }
+    .btn-secondary {
+        display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+        min-height: 2.5rem; padding: 0 0.875rem; border-radius: 0.5rem;
+        border: 1px solid var(--color-line-2); background: var(--color-surface); color: var(--color-fg) !important;
+        font-weight: 600; font-size: 0.875rem; text-decoration: none;
+    }
+    .btn-secondary:hover { border-color: var(--color-muted); }
+    .pill { display: inline-block; padding: 0.15rem 0.55rem; border-radius: 0.25rem; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase; white-space: nowrap; }
 }

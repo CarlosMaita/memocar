@@ -1,49 +1,53 @@
 <x-app-layout>
     <x-slot name="title">Catálogo</x-slot>
     <x-slot name="header">
-        <div class="flex flex-wrap items-center justify-between gap-3">
-            <div>
-                <h2 class="font-semibold text-xl text-gray-800">Catálogo de fallas y mantenimientos</h2>
-                <p class="text-sm text-gray-500">El intervalo <b>seteado</b> es el que usa MemoCar para las alertas; el <b>recomendado</b> es la referencia común. Aplica a todos tus carros.</p>
+        <div class="flex flex-wrap items-end justify-between gap-4">
+            <div class="max-w-2xl">
+                <span class="eyebrow text-accent-fg">Fallas y mantenimientos</span>
+                <h1 class="mt-0.5 mb-0 font-display font-extrabold text-3xl sm:text-[42px] leading-tight tracking-tight text-white">Catálogo</h1>
+                <p class="mt-2 mb-0 text-muted">El intervalo <span class="text-white font-semibold">seteado</span> es el que usa MemoCar para las alertas; el <span class="text-white font-semibold">recomendado</span> es la referencia común. Aplica a todos tus carros.</p>
             </div>
-            <a href="{{ route('maintenance-types.create') }}"><x-primary-button type="button">+ Agregar concepto</x-primary-button></a>
+            <a href="{{ route('maintenance-types.create') }}" class="btn-primary">
+                <svg aria-hidden="true" class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+                Agregar concepto
+            </a>
         </div>
     </x-slot>
 
-    <div class="space-y-6">
+    <div class="flex flex-col gap-6">
         @foreach ($typesByCategory as $category => $types)
-            <div class="bg-white shadow-sm rounded-lg overflow-x-auto">
-                <div class="px-4 py-2 bg-gray-50 font-semibold text-gray-700">{{ $category }}</div>
+            <section class="card overflow-x-auto">
+                <h2 class="m-0 px-5 py-3 border-b border-line font-display font-bold text-lg text-white">{{ $category }}</h2>
                 <table class="min-w-full text-sm">
-                    <thead class="text-gray-500 text-left">
+                    <thead class="text-muted text-left">
                         <tr>
-                            <th class="px-4 py-2 w-1/2">Concepto</th>
-                            <th class="px-4 py-2">Recomendado</th>
-                            <th class="px-4 py-2">Seteado (alerta)</th>
-                            <th class="px-4 py-2 text-right">Registros en {{ $currentCar->name }}</th>
-                            <th class="px-4 py-2"></th>
+                            <th class="px-5 py-2.5 font-semibold w-1/2">Concepto</th>
+                            <th class="px-5 py-2.5 font-semibold">Recomendado</th>
+                            <th class="px-5 py-2.5 font-semibold">Seteado (alerta)</th>
+                            <th class="px-5 py-2.5 font-semibold text-right whitespace-nowrap">En {{ $currentCar->name }}</th>
+                            <th class="px-5 py-2.5"></th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-100">
+                    <tbody>
                         @foreach ($types as $type)
                             @php($custom = $type->set_km !== $type->recommended_km || $type->set_months !== $type->recommended_months)
-                            <tr @class(['opacity-50' => ! $type->is_active])>
-                                <td class="px-4 py-2">
-                                    {{ $type->name }}
-                                    @unless ($type->is_active) <span class="text-xs text-gray-500">(inactivo)</span> @endunless
-                                    @if ($type->notes) <div class="text-xs text-gray-500">{{ $type->notes }}</div> @endif
+                            <tr @class(['border-t border-line-soft', 'opacity-50' => ! $type->is_active])>
+                                <td class="px-5 py-3">
+                                    <span class="text-white font-medium">{{ $type->name }}</span>
+                                    @unless ($type->is_active) <span class="ms-1 pill bg-surface-2 text-muted">inactivo</span> @endunless
+                                    @if ($type->notes) <div class="text-xs text-muted mt-0.5">{{ $type->notes }}</div> @endif
                                 </td>
-                                <td class="px-4 py-2 whitespace-nowrap text-gray-500">{{ \App\Models\MaintenanceType::formatInterval($type->recommended_km, $type->recommended_months) }}</td>
-                                <td @class(['px-4 py-2 whitespace-nowrap', 'font-semibold text-indigo-700' => $custom])>
+                                <td class="px-5 py-3 whitespace-nowrap text-muted">{{ \App\Models\MaintenanceType::formatInterval($type->recommended_km, $type->recommended_months) }}</td>
+                                <td @class(['px-5 py-3 whitespace-nowrap', 'font-semibold text-accent-fg' => $custom, 'text-fg' => ! $custom])>
                                     {{ \App\Models\MaintenanceType::formatInterval($type->set_km, $type->set_months) }}
                                 </td>
-                                <td class="px-4 py-2 text-right">{{ $type->records_count }}</td>
-                                <td class="px-4 py-2 text-right whitespace-nowrap">
-                                    <a href="{{ route('maintenance-types.edit', $type) }}" class="text-indigo-600 hover:underline">Editar</a>
+                                <td class="px-5 py-3 text-right">{{ $type->records_count }}</td>
+                                <td class="px-5 py-3 text-right whitespace-nowrap">
+                                    <a href="{{ route('maintenance-types.edit', $type) }}" class="font-semibold no-underline">Editar</a>
                                     @if ($custom && ($type->recommended_km !== null || $type->recommended_months !== null))
-                                        <form method="POST" action="{{ route('maintenance-types.reset', $type) }}" class="inline ms-2">
+                                        <form method="POST" action="{{ route('maintenance-types.reset', $type) }}" class="inline ms-3">
                                             @csrf
-                                            <button class="text-gray-500 hover:underline" title="Volver al intervalo recomendado">Restablecer</button>
+                                            <button class="text-muted hover:text-white" title="Volver al intervalo recomendado">Restablecer</button>
                                         </form>
                                     @endif
                                 </td>
@@ -51,7 +55,7 @@
                         @endforeach
                     </tbody>
                 </table>
-            </div>
+            </section>
         @endforeach
     </div>
 </x-app-layout>

@@ -19,7 +19,7 @@ class DashboardController extends Controller
             'totalCost' => (float) $records->clone()->sum('cost'),
             'yearCost' => (float) $records->clone()->whereYear('date', now()->year)->sum('cost'),
             'recordsCount' => $records->clone()->count(),
-            'lastRecord' => $records->clone()->with('type')->latest('date')->latest('id')->first(),
+            'recent' => $records->clone()->with('type')->latest('date')->latest('id')->limit(4)->get(),
         ]);
     }
 }
