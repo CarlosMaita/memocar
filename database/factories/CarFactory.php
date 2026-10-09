@@ -1,0 +1,25 @@
+<?php
+
+namespace Database\Factories;
+
+use App\Models\Car;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Factories\Factory;
+
+/**
+ * @extends Factory<Car>
+ */
+class CarFactory extends Factory
+{
+    public function definition(): array
+    {
+        return [
+            'user_id' => User::factory(),
+            'name' => fake()->word(),
+            'brand' => fake()->randomElement(['Toyota', 'Chevrolet', 'Ford', 'Fiat']),
+            'model' => fake()->word(),
+            'year' => fake()->numberBetween(2000, 2025),
+            'current_km' => 0,
+        ];
+    }
+}
