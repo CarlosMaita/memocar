@@ -5,7 +5,7 @@ Historial de reparaciones y mantenimiento de carros con alertas del próximo ser
 ## Stack
 
 - Laravel 13, PHP 8.5, Breeze (Blade), Pest. Lint con Pint (`./vendor/bin/pint`).
-- **Sin build de frontend**: Tailwind v4 (browser) y Alpine se cargan por CDN con versión fija en `resources/views/partials/assets.blade.php`. No hay Node en el servidor; no agregar `@vite`.
+- **Sin Node**: el CSS se compila con el binario standalone de Tailwind v4 (`scripts/build-css.sh`: `resources/css/app.css` → `public/css/app.css`, que se commitea). Alpine se sirve desde `public/js/alpine.min.js`. Nada de CDN en runtime (un bloqueador dejó la app sin estilos). **Después de cambiar clases en vistas, correr `scripts/build-css.sh`.** No usar `@vite`.
 - Dev local: SQLite. Producción: MySQL/MariaDB `upsofte_memocar`. Sesión/caché en `database`, cola `sync`.
 - Idioma `es` (traducciones en `lang/`, generadas con laravel-lang), zona horaria `America/Caracas` (`APP_TIMEZONE`). Moneda única: USD (helpers `money()` y `km()` en `app/helpers.php`).
 - Tests: Hestia deshabilita `pcntl_*` en el CLI, por eso `php artisan test` falla. Usar `php -d disable_functions= vendor/bin/pest`.

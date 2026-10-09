@@ -14,7 +14,7 @@ Bitácora web de reparaciones y mantenimiento de tus carros: registra cada servi
 
 ## Stack
 
-Laravel 13 · Blade (Breeze) · Tailwind + Alpine por CDN (sin build de Node) · MySQL/MariaDB · Pest.
+Laravel 13 · Blade (Breeze) · Tailwind v4 compilado con el binario standalone (`scripts/build-css.sh`, sin Node) · Alpine · MySQL/MariaDB · Pest.
 
 ## Desarrollo local
 

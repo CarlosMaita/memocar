@@ -5,7 +5,7 @@ Producción de `memocar.upsofte.com` en el VPS `162.35.113.182` (HestiaCP 1.10, 
 - nginx de Hestia con la plantilla **laravel** (docroot → `public/`), PHP-FPM 8.5.
 - MySQL: base `upsofte_memocar`, usuario `upsofte_memocar` (clave en el `.env` de producción).
 - Cola `sync`, sesiones y caché en `database`. Correo por `sendmail` (reset de contraseña).
-- Sin Node: Tailwind/Alpine van por CDN, no hay `npm run build`.
+- Sin Node: el CSS compilado (`public/css/app.css`) va en el repo; se regenera con `scripts/build-css.sh` antes de commitear cambios de vistas.
 
 Rutas:
 
