@@ -10,7 +10,8 @@ Producción de `memocar.upsofte.com` en el VPS `162.35.113.182` (HestiaCP 1.10, 
 Rutas:
 
 - Producción: `/home/upsofte/web/memocar.upsofte.com/public_html` (el `.env` vive ahí; no está en el repo).
-- Repo de desarrollo: `/home/upsofte/dev/memocar` (es el `origin` de producción hasta que exista el repo en GitHub).
+- Repo de desarrollo: `/home/upsofte/dev/memocar`.
+- Repo: https://github.com/CarlosMaita/memocar (remoto `git@github-memocar:CarlosMaita/memocar.git` en ambos, con la deploy key `~upsofte/.ssh/memocar-deploy`).
 
 ## Actualizar la app
 
@@ -27,31 +28,19 @@ Si se agregaron conceptos al catálogo base (`database/data/maintenance_catalog.
 
 ## SSL
 
-Requiere el registro DNS `A memocar.upsofte.com → 162.35.113.182`. Luego:
+Activo desde 2026-10-09 (Let's Encrypt, Hestia lo renueva solo, HTTP→HTTPS forzado). Para rehacerlo, con el DNS `A memocar.upsofte.com → 162.35.113.182`:
 
 ```bash
-/usr/local/hestia/bin/v-add-letsencrypt-domain upsofte memocar.upsofte.com "" yes
+/usr/local/hestia/bin/v-add-letsencrypt-domain upsofte memocar.upsofte.com
+/usr/local/hestia/bin/v-add-web-domain-ssl-force upsofte memocar.upsofte.com
 ```
 
-y en el `.env` de producción `SESSION_SECURE_COOKIE=true` + `php artisan config:cache`.
+(Ojo: el 4º argumento de `v-add-letsencrypt-domain` es para el dominio de correo, no para redirigir.)
+El `.env` de producción lleva `SESSION_SECURE_COOKIE=true`: el login no funciona por HTTP plano.
 
-## Conectar con GitHub
+## GitHub
 
-1. Crear el repo vacío (ej. `CarlosMaita/memocar`).
-2. Clave de despliegue (como `ml-simulador`): `sudo -u upsofte ssh-keygen -t ed25519 -f ~upsofte/.ssh/memocar-deploy -N ""`, agregar la `.pub` en *Settings → Deploy keys* con permiso de escritura, y en `~upsofte/.ssh/config`:
-
-   ```
-   Host github-memocar
-     HostName github.com
-     User git
-     IdentityFile ~/.ssh/memocar-deploy
-   ```
-3. Push desde el repo de desarrollo y apuntar producción al mismo remoto:
-
-   ```bash
-   cd /home/upsofte/dev/memocar && sudo -u upsofte git remote add origin git@github-memocar:CarlosMaita/memocar.git && sudo -u upsofte git push -u origin main
-   cd /home/upsofte/web/memocar.upsofte.com/public_html && sudo -u upsofte git remote set-url origin git@github-memocar:CarlosMaita/memocar.git
-   ```
+Ya conectado. Flujo: commit y `git push` desde `/home/upsofte/dev/memocar` y luego `git pull` en producción (sección "Actualizar la app"). La clave `memocar-deploy` está como deploy key con escritura en el repo; el alias SSH `github-memocar` vive en `~upsofte/.ssh/config`.
 
 ## Operación
 
