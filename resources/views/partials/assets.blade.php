@@ -1,5 +1,5 @@
 {{-- Sin Node ni CDN de scripts: CSS compilado con scripts/build-css.sh y Alpine servido desde public/js. --}}
-<link rel="manifest" href="/manifest.webmanifest">
+<link rel="manifest" href="/manifest.json">
 <link rel="icon" href="/favicon.ico" sizes="32x32">
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
 <meta name="mobile-web-app-capable" content="yes">
