@@ -2,18 +2,26 @@
 
 use App\Http\Controllers\CarController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DemoController;
 use App\Http\Controllers\MaintenanceRecordController;
 use App\Http\Controllers\MaintenanceTypeController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Middleware\BlockDemoUser;
 use App\Http\Middleware\EnsureCarSelected;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/dashboard');
 
+// Acceso demo sin cuenta (una cuenta desechable por visitante)
+Route::post('/demo', [DemoController::class, 'store'])->middleware(['guest', 'throttle:10,60'])->name('demo.start');
+Route::post('/demo/exit', [DemoController::class, 'destroy'])->middleware('auth')->name('demo.exit');
+
 Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::middleware(BlockDemoUser::class)->group(function () {
+        Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    });
 
     // Carros (no requieren carro seleccionado)
     Route::get('/cars/select', [CarController::class, 'select'])->name('cars.select');

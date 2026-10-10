@@ -61,9 +61,11 @@
                 <x-slot name="content">
                     <div class="px-4 py-2 border-b border-line">
                         <div class="text-sm font-semibold text-white">{{ Auth::user()->name }}</div>
-                        <div class="text-xs text-muted truncate">{{ Auth::user()->email }}</div>
+                        <div class="text-xs text-muted truncate">{{ Auth::user()->is_demo ? 'Cuenta demo' : Auth::user()->email }}</div>
                     </div>
-                    <x-dropdown-link :href="route('profile.edit')">Perfil</x-dropdown-link>
+                    @unless (Auth::user()->is_demo)
+                        <x-dropdown-link :href="route('profile.edit')">Perfil</x-dropdown-link>
+                    @endunless
                     <x-install-app />
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
@@ -94,9 +96,11 @@
         <div class="mt-3 pt-3 border-t border-line flex flex-col gap-1">
             <div class="px-3 pb-1">
                 <div class="font-semibold text-white">{{ Auth::user()->name }}</div>
-                <div class="text-sm text-muted">{{ Auth::user()->email }}</div>
+                <div class="text-sm text-muted">{{ Auth::user()->is_demo ? 'Cuenta demo' : Auth::user()->email }}</div>
             </div>
-            <x-responsive-nav-link :href="route('profile.edit')">Perfil</x-responsive-nav-link>
+            @unless (Auth::user()->is_demo)
+                <x-responsive-nav-link :href="route('profile.edit')">Perfil</x-responsive-nav-link>
+            @endunless
             <x-install-app />
             <form method="POST" action="{{ route('logout') }}">
                 @csrf

@@ -34,5 +34,7 @@
 
             <x-primary-button class="w-full min-h-12 text-base">Crear cuenta</x-primary-button>
         </form>
+
+        <x-demo-button />
     </div>
 </x-guest-layout>

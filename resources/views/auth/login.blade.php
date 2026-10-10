@@ -36,5 +36,7 @@
 
             <x-primary-button class="w-full min-h-12 text-base">Entrar</x-primary-button>
         </form>
+
+        <x-demo-button />
     </div>
 </x-guest-layout>
