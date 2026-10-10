@@ -4,6 +4,8 @@
     @php($counts = $items->countBy('status'))
 
     <div class="flex flex-col gap-6">
+        <x-install-app variant="banner" class="sm:hidden" />
+
         {{-- Encabezado del carro --}}
         <section class="flex flex-wrap items-end justify-between gap-6">
             <div class="flex flex-col gap-1.5 min-w-0">

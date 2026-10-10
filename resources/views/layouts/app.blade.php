@@ -29,5 +29,6 @@
                 {{ $slot }}
             </main>
         </div>
+        <x-install-help />
     </body>
 </html>

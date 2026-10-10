@@ -37,10 +37,12 @@
 
             {{-- Formulario --}}
             <section class="flex-[1_1_420px] min-w-0 px-6 py-12 flex items-center justify-center">
-                <div class="w-full max-w-[380px]">
-                    {{ $slot }}
+                <div class="w-full max-w-[380px] flex flex-col gap-8">
+                    <div>{{ $slot }}</div>
+                    <x-install-app variant="card" />
                 </div>
             </section>
         </div>
+        <x-install-help />
     </body>
 </html>

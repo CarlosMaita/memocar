@@ -64,6 +64,7 @@
                         <div class="text-xs text-muted truncate">{{ Auth::user()->email }}</div>
                     </div>
                     <x-dropdown-link :href="route('profile.edit')">Perfil</x-dropdown-link>
+                    <x-install-app />
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <x-dropdown-link :href="route('logout')" onclick="event.preventDefault(); this.closest('form').submit();">Cerrar sesión</x-dropdown-link>
@@ -96,6 +97,7 @@
                 <div class="text-sm text-muted">{{ Auth::user()->email }}</div>
             </div>
             <x-responsive-nav-link :href="route('profile.edit')">Perfil</x-responsive-nav-link>
+            <x-install-app />
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
                 <x-responsive-nav-link :href="route('logout')" onclick="event.preventDefault(); this.closest('form').submit();">Cerrar sesión</x-responsive-nav-link>
