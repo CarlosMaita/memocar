@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\EmailVerificationPromptController;
+use App\Http\Controllers\Auth\LoginCodeController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
@@ -22,6 +23,16 @@ Route::middleware('guest')->group(function () {
         ->name('login');
 
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
+
+    // Acceso con código por correo (sin contraseña), activable con LOGIN_CODES_ENABLED
+    Route::middleware('login-codes')->group(function () {
+        Route::post('login/code', [LoginCodeController::class, 'store'])->name('login.code.send');
+        Route::get('login/code', [LoginCodeController::class, 'show'])->name('login.code');
+        Route::post('login/code/resend', [LoginCodeController::class, 'resend'])->name('login.code.resend');
+        Route::post('login/code/verify', [LoginCodeController::class, 'verify'])->middleware('throttle:15,1')->name('login.code.verify');
+        Route::get('login/link/{token}', [LoginCodeController::class, 'confirmLink'])->name('login.link');
+        Route::post('login/link/{token}', [LoginCodeController::class, 'link'])->middleware('throttle:15,1')->name('login.link.use');
+    });
 
     Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
         ->name('password.request');

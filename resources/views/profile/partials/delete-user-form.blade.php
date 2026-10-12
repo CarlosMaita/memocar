@@ -24,18 +24,21 @@
             </h2>
 
             <p class="mt-1 text-sm text-muted">
-                {{ __('Once your account is deleted, all of its resources and data will be permanently deleted. Please enter your password to confirm you would like to permanently delete your account.') }}
+                {{ Auth::user()->hasPassword()
+                    ? __('Once your account is deleted, all of its resources and data will be permanently deleted. Please enter your password to confirm you would like to permanently delete your account.')
+                    : 'Se borrarán tu cuenta, tus carros y todo su historial. Escribe ELIMINAR para confirmar.' }}
             </p>
 
             <div class="mt-6">
-                <x-input-label for="password" value="{{ __('Password') }}" class="sr-only" />
+                <x-input-label for="password" value="{{ Auth::user()->hasPassword() ? __('Password') : 'Confirmación' }}" class="sr-only" />
 
                 <x-text-input
                     id="password"
                     name="password"
-                    type="password"
+                    :type="Auth::user()->hasPassword() ? 'password' : 'text'"
                     class="mt-1 block w-3/4"
-                    placeholder="{{ __('Password') }}"
+                    :placeholder="Auth::user()->hasPassword() ? __('Password') : 'ELIMINAR'"
+                    autocomplete="off"
                 />
 
                 <x-input-error :messages="$errors->userDeletion->get('password')" class="mt-2" />

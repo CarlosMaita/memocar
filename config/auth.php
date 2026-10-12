@@ -114,4 +114,9 @@ return [
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
+    /*
+    | Acceso con código por correo (sin contraseña). Requiere que el envío de correo funcione.
+    */
+    'login_codes' => env('LOGIN_CODES_ENABLED', false),
+
 ];

@@ -20,16 +20,27 @@
                 <x-input-error :messages="$errors->get('email')" />
             </div>
 
-            <div class="flex flex-col gap-1.5">
-                <x-input-label for="password" value="Contraseña" />
-                <x-text-input id="password" class="w-full" type="password" name="password" required autocomplete="new-password" />
-                <x-input-error :messages="$errors->get('password')" />
-            </div>
+            <div x-data="{ withPassword: {{ ! config('auth.login_codes') || $errors->hasAny(['password', 'password_confirmation']) ? 'true' : 'false' }} }" class="flex flex-col gap-[18px]">
+                <label @class(['flex items-center gap-2.5 text-sm text-fg-2 min-h-8', 'hidden' => ! config('auth.login_codes')])>
+                    <input type="checkbox" x-model="withPassword">
+                    Quiero usar también una contraseña <span class="text-muted">(opcional)</span>
+                </label>
+                <p x-show="! withPassword" x-cloak class="m-0 -mt-2 text-[13px] text-muted">Sin contraseña: cada vez que entres te enviamos un código a tu correo.</p>
 
-            <div class="flex flex-col gap-1.5">
-                <x-input-label for="password_confirmation" value="Confirmar contraseña" />
-                <x-text-input id="password_confirmation" class="w-full" type="password" name="password_confirmation" required autocomplete="new-password" />
-                <x-input-error :messages="$errors->get('password_confirmation')" />
+                <template x-if="withPassword">
+                    <div class="flex flex-col gap-[18px]">
+                        <div class="flex flex-col gap-1.5">
+                            <x-input-label for="password" value="Contraseña" />
+                            <x-text-input id="password" class="w-full" type="password" name="password" required autocomplete="new-password" />
+                            <x-input-error :messages="$errors->get('password')" />
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <x-input-label for="password_confirmation" value="Confirmar contraseña" />
+                            <x-text-input id="password_confirmation" class="w-full" type="password" name="password_confirmation" required autocomplete="new-password" />
+                            <x-input-error :messages="$errors->get('password_confirmation')" />
+                        </div>
+                    </div>
+                </template>
             </div>
 
             <x-primary-button class="w-full min-h-12 text-base">Crear cuenta</x-primary-button>

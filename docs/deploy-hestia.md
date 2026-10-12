@@ -42,6 +42,15 @@ El `.env` de producción lleva `SESSION_SECURE_COOKIE=true`: el login no funcion
 
 Ya conectado. Flujo: commit y `git push` desde `/home/upsofte/dev/memocar` y luego `git pull` en producción (sección "Actualizar la app"). La clave `memocar-deploy` está como deploy key con escritura en el repo; el alias SSH `github-memocar` vive en `~upsofte/.ssh/config`.
 
+## Correo
+
+- La app envía por SMTP al exim local de Hestia: `MAIL_MAILER=smtp`, `MAIL_HOST=127.0.0.1`, `MAIL_PORT=25`, `MAIL_SCHEME=smtp`, `MAIL_EHLO_DOMAIN=serve.upsofte.com`, `MAIL_VERIFY_PEER=false` (el certificado de exim es del hostname, no de 127.0.0.1). No usar `sendmail`: PHP-FPM tiene `proc_open` deshabilitado.
+- Remitente `no-reply@upsofte.com` (cuenta creada en el dominio de correo de Hestia para que exim acepte el remitente).
+- El proveedor bloquea el puerto 25 de salida: exim entrega todo por el **relay SMTP** de Hestia (`/etc/exim4/smtp_relay.conf`, configurable en el panel: Configuración del servidor → Correo → SMTP relay).
+- DNS recomendados para `upsofte.com`: TXT `mail._domainkey` (DKIM, sale de `v-list-mail-domain-dkim-dns upsofte upsofte.com`) y TXT `_dmarc` = `v=DMARC1; p=none`.
+- Acceso por código: `LOGIN_CODES_ENABLED=true` en `.env` + `php artisan config:cache`. Activarlo solo cuando el envío funcione.
+- Probar: `sudo -u upsofte php artisan tinker --execute 'Mail::raw("prueba", fn ($m) => $m->to("tu@correo.com")->subject("MemoCar prueba"));'` y revisar `/var/log/exim4/mainlog`.
+
 ## Operación
 
 - Logs: `storage/logs/laravel-*.log` y `/var/log/nginx/domains/memocar.upsofte.com.*`.

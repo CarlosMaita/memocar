@@ -1,11 +1,13 @@
 <section>
     <header>
         <h2 class="text-lg font-medium text-white">
-            {{ __('Update Password') }}
+            {{ Auth::user()->hasPassword() ? 'Cambiar contraseña' : 'Crear contraseña (opcional)' }}
         </h2>
 
         <p class="mt-1 text-sm text-muted">
-            {{ __('Ensure your account is using a long, random password to stay secure.') }}
+            {{ Auth::user()->hasPassword()
+                ? 'Usa una contraseña larga. También puedes seguir entrando con un código por correo.'
+                : 'Hoy entras con un código por correo. Si quieres, crea una contraseña para entrar también con ella.' }}
         </p>
     </header>
 
@@ -13,11 +15,13 @@
         @csrf
         @method('put')
 
-        <div>
-            <x-input-label for="update_password_current_password" :value="__('Current Password')" />
-            <x-text-input id="update_password_current_password" name="current_password" type="password" class="mt-1 block w-full" autocomplete="current-password" />
-            <x-input-error :messages="$errors->updatePassword->get('current_password')" class="mt-2" />
-        </div>
+        @if (Auth::user()->hasPassword())
+            <div>
+                <x-input-label for="update_password_current_password" :value="__('Current Password')" />
+                <x-text-input id="update_password_current_password" name="current_password" type="password" class="mt-1 block w-full" autocomplete="current-password" />
+                <x-input-error :messages="$errors->updatePassword->get('current_password')" class="mt-2" />
+            </div>
+        @endif
 
         <div>
             <x-input-label for="update_password_password" :value="__('New Password')" />

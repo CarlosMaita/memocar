@@ -42,4 +42,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(MaintenanceType::class);
     }
+
+    public function loginCodes(): HasMany
+    {
+        return $this->hasMany(LoginCode::class);
+    }
+
+    public function hasPassword(): bool
+    {
+        return $this->password !== null;
+    }
 }
