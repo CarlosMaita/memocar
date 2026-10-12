@@ -20,4 +20,6 @@ Historial de reparaciones y mantenimiento de carros con alertas del próximo ser
 - Carro seleccionado en sesión (`current_car_id`). El middleware `EnsureCarSelected` protege dashboard/registros/catálogo, comparte `$currentCar` con las vistas y lo expone con `$this->car()` en los controladores. Si el usuario tiene un solo carro se selecciona solo.
 - Próximo mantenimiento: `App\Services\MaintenanceSchedule` — desde el último registro de cada concepto en el carro; estados vencido / próximo (≤30 días o ≤1.000 km) / al día.
 - Guardar un registro con km mayor al del carro actualiza `cars.current_km` (hook `saved` en `MaintenanceRecord`).
+- Admin: `users.is_admin` (no fillable; se asigna con `php artisan memocar:admin <email>`), middleware `EnsureAdmin`, panel `/admin` con `App\Services\AdminStats` (excluye cuentas demo salvo `?demo=1`). Ver `docs/admin.md`.
+- Demo: `users.is_demo`, `CreateDemoUser` (cuenta desechable por visitante, purga a las 24 h) + `SeedDemoGarage`; `BlockDemoUser` protege perfil/contraseña.
 - Pertenencia: los controladores devuelven 404 si el carro/registro/concepto no es del usuario (o del carro seleccionado).

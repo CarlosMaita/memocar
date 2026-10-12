@@ -11,6 +11,8 @@ Bitácora web de reparaciones y mantenimiento de tus carros: registra cada servi
 - Catálogo de ~38 fallas/mantenimientos comunes (aceite, frenos, correa de tiempo, cauchos, empacaduras, batería…) agrupados por categoría, con intervalo **recomendado** (referencia común) e intervalo **seteado** (el que usa la app para alertar, editable por el usuario). Se pueden agregar conceptos propios.
 - Dashboard por carro: kilometraje, gastos del año y total, último servicio y tabla de próximos mantenimientos (vencido / próximo / al día) calculada desde el último registro de cada tipo, por km y por fecha (lo que ocurra primero).
 - Historial filtrable por concepto y año, con total gastado.
+- Acceso demo sin cuenta ("Ver como demo") y app instalable en el teléfono (PWA).
+- Panel de administración con estadísticas y espectro de fallas ([docs/admin.md](docs/admin.md)).
 
 ## Stack
 

@@ -4,6 +4,7 @@
     ['Registros', 'records.index', 'records.*'],
     ['Catálogo', 'maintenance-types.index', 'maintenance-types.*'],
     ['Mis carros', 'cars.index', ['cars.index', 'cars.create', 'cars.edit']],
+    ...(Auth::user()->is_admin ? [['Admin', 'admin', 'admin']] : []),
 ])
 <nav x-data="{ open: false }" class="bg-bar border-b border-[#222622]">
     <div class="max-w-[1200px] mx-auto px-4 sm:px-6 min-h-16 flex items-center gap-x-8 gap-y-3">

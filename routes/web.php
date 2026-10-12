@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\CarController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DemoController;
@@ -7,6 +8,7 @@ use App\Http\Controllers\MaintenanceRecordController;
 use App\Http\Controllers\MaintenanceTypeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Middleware\BlockDemoUser;
+use App\Http\Middleware\EnsureAdmin;
 use App\Http\Middleware\EnsureCarSelected;
 use Illuminate\Support\Facades\Route;
 
@@ -22,6 +24,9 @@ Route::middleware('auth')->group(function () {
         Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
         Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     });
+
+    // Panel de administración (estadísticas generales)
+    Route::get('/admin', AdminController::class)->middleware(EnsureAdmin::class)->name('admin');
 
     // Carros (no requieren carro seleccionado)
     Route::get('/cars/select', [CarController::class, 'select'])->name('cars.select');
